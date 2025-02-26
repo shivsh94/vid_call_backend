@@ -39,25 +39,25 @@ const socketidToEmailMap = new Map();
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
-  socket.on("room:join", ({ email, roomId }) => {
-    if (!email || !roomId) {
-      console.error("Missing email or roomId:", { email, roomId });
+  socket.on("room:join", ({ name, roomId }) => {
+    if (!name || !roomId) {
+      console.error("Missing name or roomId:", { name, roomId });
       return;
     }
 
-    console.log(`User ${email} is joining room ${roomId}`);
+    console.log(`User ${name} is joining room ${roomId}`);
 
-    emailToSocketMap.set(email, socket.id);
-    socketidToEmailMap.set(socket.id, email);
+    emailToSocketMap.set(name, socket.id);
+    socketidToEmailMap.set(socket.id, name);
 
-    io.to(roomId).emit("user:join", { email, id: socket.id });
+    io.to(roomId).emit("user:join", { name, id: socket.id });
 
     socket.join(roomId);
 
     io.to(socket.id).emit("room:join", {
       message: `You joined room ${roomId}`,
       roomId,
-      email,
+      name,
     });
 
     socket.on("user:call", ({ to, offer }) => {
@@ -77,17 +77,17 @@ io.on("connection", (socket) => {
     });
 
     socket.to(roomId).emit("room:join", {
-      message: `${email} has joined the room`,
-      email,
+      message: `${name} has joined the room`,
+      name,
       roomId,
     });
   });
 
   socket.on("disconnect", () => {
-    const email = socketidToEmailMap.get(socket.id);
-    if (email) {
-      console.log(`User disconnected: ${email} (${socket.id})`);
-      emailToSocketMap.delete(email);
+    const name = socketidToEmailMap.get(socket.id);
+    if (name) {
+      console.log(`User disconnected: ${name} (${socket.id})`);
+      emailToSocketMap.delete(name);
       socketidToEmailMap.delete(socket.id);
     } else {
       console.log(`User disconnected: undefined (${socket.id})`);
