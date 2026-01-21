@@ -96,6 +96,10 @@ io.on("connection", (socket) => {
       io.to(to).emit("peer:nego:final", { from: socket.id, answer });
     });
 
+    socket.on("ice:candidate", ({ to, candidate }) => {
+      io.to(to).emit("ice:candidate", { from: socket.id, candidate });
+    });
+
     socket.to(roomId).emit("room:join", {
       message: `${name} has joined the room`,
       name,
